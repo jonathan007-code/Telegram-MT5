@@ -1,0 +1,33 @@
+Bot de Negociação com Integração ao Telegram
+Este é um Expert Advisor (EA) para MetaTrader 5 (MT5) que permite a integração com o serviço de mensagens do Telegram e execução de operações de negociação com base em sinais recebidos.
+
+Funcionalidades
+Recebe sinais de compra, venda e fechamento do Telegram.
+Configurações flexíveis para tamanho do lote e nível de take profit.
+Execução de ordens de compra, venda e fechamento em qualquer par de moedas.
+Envio de mensagens de confirmação de operações para o Telegram.
+Requisitos
+
+MetaTrader 5 (MT5) instalado.
+Conta de negociação ativa em uma corretora compatível com o MT5.
+Acesso ao serviço de mensagens do Telegram.
+
+Instalação
+Clone ou baixe este repositório para o seu computador.
+Copie os arquivos Telegram.mqh e Trade.mqh para a pasta Include do seu diretório MetaTrader 5.
+Abra o MetaEditor no MetaTrader 5 e compile o arquivo Telegram_Signal_EA.mq5.
+Abra o MetaTrader 5 e adicione o EA Telegram_Signal_EA ao gráfico do par de moedas desejado.
+Configure o token do bot do Telegram e outras configurações necessárias nas entradas do EA.
+
+Utilização
+Inicie o EA no MetaTrader 5 no par de moedas desejado.
+Envie sinais de compra, venda ou fechamento para o bot do Telegram no formato especificado na seção "Funcionalidades".
+O EA processará os sinais recebidos e executará as operações de negociação correspondentes.
+
+Notas
+Certifique-se de configurar corretamente o token do bot do Telegram e outras configurações no EA antes de usá-lo.
+Este EA é apenas um exemplo educacional e pode precisar ser ajustado para atender às suas necessidades específicas de negociação.
+Use sempre o EA com cuidado e teste-o em uma conta demo antes de usar em uma conta real.
+
+Autor
+Este EA foi desenvolvido por Jonathan.
