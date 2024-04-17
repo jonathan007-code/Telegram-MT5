@@ -1,0 +1,186 @@
+//+------------------------------------------------------------------+
+//| INCLUDES                                                         |
+//+------------------------------------------------------------------+
+#include <Telegram.mqh>
+#include <Trade\Trade.mqh>
+
+CTrade trade;
+CMyBot bot;
+
+//+------------------------------------------------------------------+
+//| VARIAVEIS GLOBAIS                                                |
+//+------------------------------------------------------------------+
+input string Tokem ="6864442223:AAEVlcq4VIGtGM3XEIBiZsi0FavfF6acnls";//Token 
+input double LotSize = 0.1; // Tamanho do lote padrão
+input int TakeProfitLevel = 1; // Nível de take profit padrão (1: TP1, 2: TP2, 3: TP3)
+
+//+------------------------------------------------------------------+
+//| Classe CMyBot                                                    |
+//+------------------------------------------------------------------+
+class CMyBot : public CCustomBot {
+public:
+
+   void ProcessMessage() {
+      for(int i = 0; i < m_chats.Total(); i++) {
+         CCustomChat *chat = m_chats.GetNodeAtIndex(i);
+         
+         if(!chat.m_new_one.done) {
+            chat.m_new_one.done = true;
+            string text = chat.m_new_one.message_text;
+            
+            // Verifica se a mensagem contém um sinal de compra
+            if(StringFind(text, "SIGNAL ALERT BUY") != -1) {
+               ProcessBuySignal(text, chat.m_id);
+            }
+            // Verifica se a mensagem contém um sinal de venda
+            else if(StringFind(text, "SIGNAL ALERT SELL") != -1) {
+               ProcessSellSignal(text, chat.m_id);
+            }
+            // Verifica se a mensagem contém um sinal de fechamento
+            else if(StringFind(text, "SIGNAL ALERT CLOSE") != -1) {
+               ProcessCloseSignal(text, chat.m_id);
+            }
+         }
+      }
+   }
+
+   void ProcessBuySignal(string text, long chat_id) {
+      // Extrai os detalhes do sinal de compra
+      string[] details = StringSplit(text, ' ');
+
+      // Verifica se os detalhes foram extraídos corretamente
+      if(ArraySize(details) >= 6) {
+         string symbol = details[2];
+         double entryPrice = StrToDouble(details[3]);
+         double sl = StrToDouble(details[14]);
+
+         // Seleciona o nível de take profit com base no parâmetro de entrada
+         double tp = 0.0;
+         switch(TakeProfitLevel) {
+            case 1:
+               tp = StrToDouble(details[5]);
+               break;
+            case 2:
+               tp = StrToDouble(details[8]);
+               break;
+            case 3:
+               tp = StrToDouble(details[11]);
+               break;
+         }
+
+         // Executa a ordem de compra em qualquer par de moedas
+         ExecuteOrder(OP_BUY, symbol, entryPrice, sl, tp, LotSize);
+
+         // Envia mensagem de confirmação ao canal do Telegram
+         SendMessage(chat_id, "Ordem de COMPRA executada com sucesso.");
+      }
+   }
+
+   void ProcessSellSignal(string text, long chat_id) {
+      // Extrai os detalhes do sinal de venda
+      string[] details = StringSplit(text, ' ');
+
+      // Verifica se os detalhes foram extraídos corretamente
+      if(ArraySize(details) >= 6) {
+         string symbol = details[2];
+         double entryPrice = StrToDouble(details[3]);
+         double sl = StrToDouble(details[14]);
+
+         // Seleciona o nível de take profit com base no parâmetro de entrada
+         double tp = 0.0;
+         switch(TakeProfitLevel) {
+            case 1:
+               tp = StrToDouble(details[5]);
+               break;
+            case 2:
+               tp = StrToDouble(details[8]);
+               break;
+            case 3:
+               tp = StrToDouble(details[11]);
+               break;
+         }
+
+         // Executa a ordem de venda em qualquer par de moedas
+         ExecuteOrder(OP_SELL, symbol, entryPrice, sl, tp, LotSize);
+
+         // Envia mensagem de confirmação ao canal do Telegram
+         SendMessage(chat_id, "Ordem de VENDA executada com sucesso.");
+      }
+   }
+
+   void ProcessCloseSignal(string text, long chat_id) {
+      // Extrai os detalhes do sinal de fechamento
+      string[] details = StringSplit(text, ' ');
+
+      // Verifica se os detalhes foram extraídos corretamente
+      if(ArraySize(details) >= 3) {
+         ulong ticket = StrToLong(details[3]);
+
+         // Fecha a posição com base no número do ticket
+         ClosePosition(ticket);
+
+         // Envia mensagem de confirmação ao canal do Telegram
+         SendMessage(chat_id, "Posição fechada com sucesso.");
+      }
+   }
+
+   void ExecuteOrder(int type, string symbol, double entryPrice, double sl, double tp, double lotSize) {
+      if(type == OP_BUY) {
+         // Executa a ordem de compra usando a biblioteca de negociação
+         trade.Buy(lotSize, symbol, entryPrice, sl, tp);
+      } else if(type == OP_SELL) {
+         // Executa a ordem de venda usando a biblioteca de negociação
+         trade.Sell(lotSize, symbol, entryPrice, sl, tp);
+      }
+   }
+
+   void ClosePosition(ulong ticket) {
+      // Fecha a posição com base no número do ticket
+      trade.PositionClose(ticket);
+   }
+
+   void SendMessage(long chat_id, string message) {
+      // Envia uma mensagem para o canal do Telegram
+      SendMessage(chat_id, message);
+   }
+};
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit() {
+   // Configura o token do bot
+   bot.Token(Tokem);
+
+   // Inicia o processo de obtenção de informações sobre o bot
+   int getme_result = bot.GetMe();
+
+   // Verifica se a conexão com o Telegram foi bem-sucedida
+   if(getme_result != 0) {
+      Print("Erro ao conectar ao Telegram: ", GetErrorDescription(getme_result));
+   } else {
+      Print("Conexão com o Telegram estabelecida. Nome do bot: ", bot.Name());
+   }
+
+   // Define um timer para o processamento de mensagens
+   EventSetTimer(10);
+   
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason) {
+   // Para o timer
+   EventKillTimer();
+}
+
+//+------------------------------------------------------------------+
+//| Timer function                                                   |
+//+------------------------------------------------------------------+
+void OnTimer() {
+   // Coleta atualizações feitas no bot do Telegram e processa mensagens
+   bot.GetUpdates();
+   bot.ProcessMessage();
+}
