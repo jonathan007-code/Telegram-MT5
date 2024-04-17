@@ -3,6 +3,16 @@ Este é um Expert Advisor (EA) para MetaTrader 5 (MT5) que permite a integraçã
 
 Funcionalidades
 Recebe sinais de compra, venda e fechamento do Telegram.
+
+SIGNAL ALERT
+
+BUY XAUUSD 2366
+
+🤑 TP1 2368
+🤑 TP2 2371
+🤑 TP3 2386
+🛑 SL 2356
+
 Configurações flexíveis para tamanho do lote e nível de take profit.
 Execução de ordens de compra, venda e fechamento em qualquer par de moedas.
 Envio de mensagens de confirmação de operações para o Telegram.
