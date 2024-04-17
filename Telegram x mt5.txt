@@ -10,7 +10,7 @@ CMyBot bot;
 //+------------------------------------------------------------------+
 //| VARIAVEIS GLOBAIS                                                |
 //+------------------------------------------------------------------+
-input string Tokem ="6864442223:AAEVlcq4VIGtGM3XEIBiZsi0FavfF6acnls";//Token 
+input string Tokem ="6864442223:AAEVlcq4VIGtGM3XEIBiZsi0FavfGTFcnls";//Token 
 input double LotSize = 0.1; // Tamanho do lote padrão
 input int TakeProfitLevel = 1; // Nível de take profit padrão (1: TP1, 2: TP2, 3: TP3)
 
